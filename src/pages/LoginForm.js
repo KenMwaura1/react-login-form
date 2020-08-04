@@ -1,14 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {Flex,
 Box,
 Heading,
 FormControl,
 FormLabel,
 Input,
-Button } from '@chakra-ui/core';
-import {handleSubmit,setEmail,setPassword} from '.components/Login/Login';
+Button, 
+CircularProgress } from '@chakra-ui/core';
 
-export default function LoginForm() {
+import { userLogin } from '../utils/mockApi';
+import ErrorMessage from '../components/ErrorMessage';
+
+export default function Login() {
+
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const handleSubmit = async event => {
+        event.preventDefault();
+        setIsLoading(true);
+        try {
+            await userLogin({email, password });
+            setIsLoading(false);
+        } catch (error) {
+            setError('Invalid username or password');
+            setIsLoading(false);
+            setEmail('');
+            setPassword('')
+        }
+    };
+
     return (
         <Flex width="Full" align="center" justifyContent="center">
             <Box p={8} maxWidth="500px" borderWidth={1} borderRadius={8} boxShadow="lg">
@@ -17,6 +39,7 @@ export default function LoginForm() {
                 </Box>
                 <Box my={4} textAlign="left">
                     <form onSubmit={handleSubmit}>
+                        {error && <ErrorMessage message={error} />}s
                         <FormControl isRequired>
                             <FormLabel> Email </FormLabel>
                             <Input type="email" 
@@ -34,7 +57,12 @@ export default function LoginForm() {
                         />
                         </FormControl>
                         <Button variantColor="teal" variant="outline" width="full" mt={4} type="submit">
-                            Sign In 
+                            {isLoading ? (
+                                <CircularProgress isIndeterminate size="24px" color="teal" />
+                            ): (
+                                'Sign In'
+                            )}
+                            
                         </Button>
                     </form>
                 </Box>
@@ -42,4 +70,3 @@ export default function LoginForm() {
         </Flex>
     );
 }
-
